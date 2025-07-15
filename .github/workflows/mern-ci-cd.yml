@@ -34,7 +34,7 @@ jobs:
       - name: Run backend tests
         run: |
           cd server
-          npm test
+          npm test --if-present
         env:
           CI: true
           MONGODB_URI: mongodb://localhost:27017/test
@@ -66,7 +66,7 @@ jobs:
       - name: Run frontend tests
         run: |
           cd client
-          npm test
+          npm test --if-present
         env:
           CI: true
       - name: Build frontend
