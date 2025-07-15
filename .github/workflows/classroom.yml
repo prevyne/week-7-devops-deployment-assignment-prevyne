@@ -1,0 +1,49 @@
+name: Classroom Autograding Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  autograding:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 1. Check for GitHub workflow files
+        run: test -d .github/workflows
+
+      - name: 2. Check for CI/CD configuration
+        run: grep -q "ci\|cd\|deploy\|build\|test" .github/workflows -r
+
+      - name: 3. Check for environment variable templates
+        run: |
+          if [ ! -f server/.env.example ] || [ ! -f client/.env.example ]; then
+            echo "Error: Missing .env.example file in server/ or client/ directory."
+            exit 1
+          fi
+          echo "Found .env.example files."
+
+      - name: 4. Check for production build scripts
+        run: grep -q "\"build\"" client/package.json
+
+      - name: 5. Check for secure HTTP headers
+        run: grep -q "helmet\|cors" server -r
+
+      - name: 6. Check for MongoDB Atlas configuration
+        run: grep -q "mongodb+srv\|atlas\|cluster" server/.env.example || grep -q "mongodb+srv\|atlas\|cluster" server -r
+
+      - name: 7. Check for health check endpoint
+        run: grep -q "health\|status\|ping" server -r
+
+      - name: 8. Check for error tracking setup
+        run: grep -q "sentry" server -r || grep -q "sentry" client -r
+
+      - name: 9. Check for deployment documentation
+        run: grep -q "deploy\|hosting\|production" README.md
+
+      - name: 10. Check for logging configuration
+        run: grep -q "log\|winston\|morgan\|debug" server -r
